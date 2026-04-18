@@ -35,12 +35,20 @@ portfolio-auditoria/
 │
 ├── induflex/                        # Projectos executados em ambiente real
 │   ├── relatorios/                  # Relatórios de Auditoria Interna (RAI) anonimizados
-│   ├── metodologias/                # Como cada processo foi executado
+│   ├── metodologias/                # Como cada processo foi executado (em construção)
 │   └── frameworks/                  # Frameworks e referências técnicas aplicados
 │
 ├── formacao/                        # Percurso académico e certificações
+│   ├── especializacao.md            # Pós-Graduação em Auditoria e Perícia Contábil
+│   ├── bacharel.md                  # Bacharelato em Ciências Contábeis
+│   ├── tecnologo.md                 # Tecnólogo em Blockchain e Finanças Digitais
+│   └── certificacoes.md            # CFI, ACFE e CFE — em desenvolvimento
+│
 ├── carreira/                        # Roadmap e competências em desenvolvimento
+│   └── roadmap-2026-2029.md
+│
 └── templates/                       # Templates reutilizáveis criados durante os projectos
+    └── template-RAI.md
 ```
 
 ---
