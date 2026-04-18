@@ -48,7 +48,8 @@ portfolio-auditoria/
 │   └── roadmap-2026-2029.md
 │
 └── templates/                       # Templates reutilizáveis criados durante os projectos
-    └── template-RAI.md
+    ├── template-RAI.md              # Template base para novos RAIs
+    └── auditoria-precos-fornecedor.md  # Template para auditoria de conformidade de preços
 ```
 
 ---
