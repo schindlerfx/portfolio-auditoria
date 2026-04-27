@@ -8,7 +8,9 @@ Analista de Auditoria e Controlos Internos · Porto, Portugal
 
 ## Sobre este repositório
 
-Este repositório documenta projectos reais de auditoria interna, implementação de controlos internos e gestão de risco executados em ambiente profissional activo — uma empresa manufatureira europeia em processo de insolvência, com cadeia de fornecimento multinacional.
+Este repositório documenta projectos reais de auditoria interna, avaliação de controlos internos e gestão de risco executados em ambiente profissional activo — uma empresa manufatureira europeia em processo de insolvência, com cadeia de fornecimento multinacional.
+
+Em contexto de insolvência sem estrutura de auditoria prévia, foi exercido um papel híbrido de auditoria interna e consultoria operacional — com separação clara de papéis documentada em conformidade com os Standards do IIA.
 
 > ⚠️ **Nota de conformidade:** Todos os documentos aqui presentes foram anonimizados em conformidade com a LGPD (Brasil) e o RGPD (Europa). Nomes de empresas, fornecedores, colaboradores e valores financeiros específicos foram substituídos por referências genéricas. Os processos, metodologias e frameworks aplicados são reais e verificáveis.
 
@@ -35,21 +37,12 @@ portfolio-auditoria/
 │
 ├── induflex/                        # Projectos executados em ambiente real
 │   ├── relatorios/                  # Relatórios de Auditoria Interna (RAI) anonimizados
-│   ├── metodologias/                # Como cada processo foi executado (em construção)
+│   ├── metodologias/                # Como cada processo foi executado
 │   └── frameworks/                  # Frameworks e referências técnicas aplicados
 │
 ├── formacao/                        # Percurso académico e certificações
-│   ├── especializacao.md            # Pós-Graduação em Auditoria e Perícia Contábil
-│   ├── bacharel.md                  # Bacharelato em Ciências Contábeis
-│   ├── tecnologo.md                 # Tecnólogo em Blockchain e Finanças Digitais
-│   └── certificacoes.md            # CFI, ACFE e CFE — em desenvolvimento
-│
 ├── carreira/                        # Roadmap e competências em desenvolvimento
-│   └── roadmap-2026-2029.md
-│
 └── templates/                       # Templates reutilizáveis criados durante os projectos
-    ├── template-RAI.md              # Template base para novos RAIs
-    └── auditoria-precos-fornecedor.md  # Template para auditoria de conformidade de preços
 ```
 
 ---
@@ -85,12 +78,12 @@ Análise de 51 modelos. Identificação de sobrefacturação sistemática superi
 - [ ] CFI — Financial Modeling Fundamentals (previsão: Set/2026)
 - [ ] Filiação ACFE — Associate Member (previsão: 2027)
 - [ ] CFE — Certified Fraud Examiner (previsão: 2028)
-- [ ] MBA FGV — Finanças: Controladoria, Auditoria e Compliance (pós-regresso ao Brasil)
+- [ ] MBA FGV — Gestão de Riscos e Compliance *(acelerador final — linguagem Risk Advisory)*
 
 ---
 
 ## 📬 Contacto
 
-Disponível para oportunidades em **auditoria interna, controlos internos e compliance financeiro** no Brasil a partir de 2027/2028.
+Disponível para oportunidades em **Risk Advisory, auditoria interna e controlos internos** no Brasil a partir de 2027/2028. Alvo principal: Deloitte Risk Advisory — Associate com experiência europeia.
 
 > *"Every audit trail tells a story. My job is to read it before someone else writes it."*
