@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Orçamentação de Encomenda</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #2a3441;
+    --accent: #e8a020;
+    --accent2: #3d8bcd;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --green: #3fb950;
+    --red: #f85149;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .header-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); letter-spacing: 1px; }
+  .version-badge {
+    background: var(--accent); color: #000; font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 3px; letter-spacing: 1px;
+  }
+
+  /* ── LAYOUT ── */
+  .container { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 65px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 65px);
+    position: sticky; top: 65px;
+  }
+
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-label {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent2); }
+  .field select option { background: var(--surface2); }
+
+  /* ── MAIN ── */
+  .main { padding: 28px 32px; overflow-y: auto; }
+
+  .main-header { margin-bottom: 24px; }
+  .main-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
+  .main-sub { color: var(--text2); font-size: 13px; margin-top: 4px; }
+
+  /* ── SECTIONS ── */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface2);
+    padding: 12px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-icon { font-size: 15px; }
+  .section-total {
+    font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); font-weight: 500;
+  }
+  .section-body { padding: 16px 18px; }
+
+  /* ── ITEM ROWS ── */
+  .item-row {
+    display: grid; gap: 10px; align-items: end;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-row.cols-4 { grid-template-columns: 2fr 1.2fr 1fr 80px; }
+  .item-row.cols-3 { grid-template-columns: 2fr 1fr 80px; }
+  .item-row.cols-5 { grid-template-columns: 1.5fr 1.5fr 1fr 1fr 80px; }
+
+  .item-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .item-val {
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    background: var(--bg); border: 1px solid var(--border); padding: 7px 10px;
+    border-radius: 5px; color: var(--text2); width: 100%;
+  }
+  .item-val.highlight { color: var(--accent); }
+
+  .btn-remove {
+    background: transparent; border: 1px solid var(--border); color: var(--text3);
+    width: 32px; height: 32px; border-radius: 5px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .btn-remove:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-add {
+    display: flex; align-items: center; gap: 6px;
+    background: transparent; border: 1px dashed var(--border); color: var(--text2);
+    padding: 7px 14px; border-radius: 5px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    margin-top: 12px; transition: all 0.2s; width: 100%; justify-content: center;
+  }
+  .btn-add:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── RESUMO ── */
+  .resumo {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 8px;
+    position: sticky; bottom: 20px;
+  }
+  .resumo-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--text2); letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+  .resumo-item label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 4px; }
+  .resumo-item .val {
+    font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; color: var(--text);
+  }
+  .resumo-divider { height: 1px; background: var(--border); margin: 12px 0; }
+  .resumo-total {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .resumo-total-label { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+  .resumo-total-val {
+    font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500; color: var(--accent);
+  }
+  .margem-row {
+    display: flex; gap: 12px; margin-top: 16px; align-items: center; flex-wrap: wrap;
+  }
+  .margem-field { display: flex; align-items: center; gap: 8px; }
+  .margem-field label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .margem-field input {
+    width: 60px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 10px; border-radius: 5px;
+    font-family: 'DM Mono', monospace; font-size: 13px; outline: none; text-align: center;
+  }
+  .margem-result {
+    font-family: 'DM Mono', monospace; font-size: 14px; padding: 6px 14px;
+    background: var(--bg); border-radius: 5px; border: 1px solid var(--border);
+  }
+  .margem-result.positivo { color: var(--green); border-color: var(--green); }
+
+  /* ── BREAKDOWN ── */
+  .breakdown { margin-top: 16px; }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; font-size: 12px;
+  }
+  .breakdown-row .cat { color: var(--text2); }
+  .breakdown-row .pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+  .breakdown-bar-wrap { flex: 1; margin: 0 12px; height: 3px; background: var(--border); border-radius: 2px; }
+  .breakdown-bar { height: 100%; border-radius: 2px; transition: width 0.4s; }
+  .breakdown-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); min-width: 60px; text-align: right; }
+
+  /* ── PRINT / EXPORT ── */
+  .btn-export {
+    background: var(--accent); color: #000; border: none;
+    padding: 9px 20px; border-radius: 5px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    transition: opacity 0.2s;
+  }
+  .btn-export:hover { opacity: 0.85; }
+  .btn-reset {
+    background: transparent; color: var(--text2); border: 1px solid var(--border);
+    padding: 9px 16px; border-radius: 5px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+  .action-row { display: flex; gap: 10px; margin-top: 16px; }
+
+  .qty-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 10px; border-radius: 5px;
+    font-family: 'DM Mono', monospace; font-size: 13px; outline: none;
+    transition: border-color 0.2s; text-align: center;
+  }
+  .qty-input:focus { border-color: var(--accent2); }
+
+  select.item-select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 10px; border-radius: 5px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none;
+    transition: border-color 0.2s;
+  }
+  select.item-select:focus { border-color: var(--accent2); }
+  select.item-select option { background: var(--surface2); }
+
+  .empty-state { color: var(--text3); font-size: 12px; padding: 8px 0; font-style: italic; }
+
+  @media print {
+    header { position: static; }
+    .container { display: block; }
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .btn-add, .btn-remove, .btn-export, .btn-reset, .action-row { display: none; }
+    .resumo { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">AUDIT<span>TOOL</span></div>
+    <div class="header-sub">SISTEMA DE ORÇAMENTAÇÃO — CONTROLO INTERNO</div>
+  </div>
+  <div class="version-badge">v1.0 · 2026</div>
+</header>
+
+<div class="container">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Identificação</div>
+      <div class="field">
+        <label>Cliente</label>
+        <input type="text" id="cliente" placeholder="Nome do cliente" oninput="updateHeader()">
+      </div>
+      <div class="field">
+        <label>Referência da encomenda</label>
+        <input type="text" id="encomenda" placeholder="Ex: ENC-2026-042" oninput="updateHeader()">
+      </div>
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="data" oninput="updateHeader()">
+      </div>
+      <div class="field">
+        <label>Descrição do produto</label>
+        <input type="text" id="produto" placeholder="Ex: Sofá 3 lugares modelo X">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Parâmetros fixos</div>
+      <div class="field">
+        <label>Mão de obra (€/hora)</label>
+        <input type="number" id="moHora" value="5.5" step="0.1" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Materiais diversos (€/unidade)</label>
+        <input type="number" id="matDivUnit" value="15" step="0.5" oninput="recalc()">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Informação do orçamento</div>
+      <div style="font-size:12px; color:var(--text2); line-height:1.6;">
+        Todos os preços são sem IVA.<br>
+        Espumas: preço por placa 2000×1200mm.<br>
+        Madeiras: preço por m² com desconto aplicado.<br>
+        Cascos: preço interno de referência por m³.<br>
+        Documento para uso interno — controlo de margem.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main">
+
+    <div class="main-header">
+      <div class="main-title" id="mainTitle">Nova Encomenda</div>
+      <div class="main-sub" id="mainSub">Preencha os campos à esquerda para identificar o orçamento</div>
+    </div>
+
+    <!-- CASCOS -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('cascos')">
+        <div class="section-title"><span class="section-icon">🪑</span> Cascos / Estruturas de Tecido</div>
+        <div class="section-total" id="total-cascos">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-cascos">
+        <div id="rows-cascos"></div>
+        <button class="btn-add" onclick="addCasco()">+ Adicionar casco</button>
+      </div>
+    </div>
+
+    <!-- ESTRUTURAS METÁLICAS FORNECEDOR_A -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('fornecedor_a')">
+        <div class="section-title"><span class="section-icon">⚙️</span> Mecanismos — Fornecedor A</div>
+        <div class="section-total" id="total-fornecedor_a">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-fornecedor_a">
+        <div id="rows-fornecedor_a"></div>
+        <button class="btn-add" onclick="addFornecedorA()">+ Adicionar mecanismo</button>
+      </div>
+    </div>
+
+    <!-- ESPUMAS - FORNECEDOR B -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('espuma')">
+        <div class="section-title"><span class="section-icon">🟧</span> Espumas — Fornecedor B</div>
+        <div class="section-total" id="total-espuma">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-espuma">
+        <div id="rows-espuma"></div>
+        <button class="btn-add" onclick="addEspuma()">+ Adicionar espuma</button>
+      </div>
+    </div>
+
+    <!-- MDF -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('mdf')">
+        <div class="section-title"><span class="section-icon">🪵</span> MDF — Fornecedor C (desc. 30+32%)</div>
+        <div class="section-total" id="total-mdf">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-mdf">
+        <div id="rows-mdf"></div>
+        <button class="btn-add" onclick="addMdf()">+ Adicionar MDF</button>
+      </div>
+    </div>
+
+    <!-- CONTRAPLACADO -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('contra')">
+        <div class="section-title"><span class="section-icon">🪵</span> Contraplacado — Fornecedor C (desc. 30+17%)</div>
+        <div class="section-total" id="total-contra">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-contra">
+        <div id="rows-contra"></div>
+        <button class="btn-add" onclick="addContra()">+ Adicionar Contraplacado</button>
+      </div>
+    </div>
+
+    <!-- MÃO DE OBRA -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('mo')">
+        <div class="section-title"><span class="section-icon">👷</span> Mão de Obra</div>
+        <div class="section-total" id="total-mo">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-mo">
+        <div id="rows-mo"></div>
+        <button class="btn-add" onclick="addMO()">+ Adicionar linha de mão de obra</button>
+      </div>
+    </div>
+
+    <!-- MATERIAIS DIVERSOS -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('matdiv')">
+        <div class="section-title"><span class="section-icon">🔩</span> Materiais Diversos</div>
+        <div class="section-total" id="total-matdiv">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-matdiv">
+        <div id="rows-matdiv"></div>
+        <button class="btn-add" onclick="addMatDiv()">+ Adicionar materiais diversos</button>
+      </div>
+    </div>
+
+    <!-- EMBALAGEM -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('embal')">
+        <div class="section-title"><span class="section-icon">📦</span> Embalagem</div>
+        <div class="section-total" id="total-embal">0,00 €</div>
+      </div>
+      <div class="section-body" id="body-embal">
+        <div id="rows-embal"></div>
+        <button class="btn-add" onclick="addEmbal()">+ Adicionar embalagem</button>
+      </div>
+    </div>
+
+    <!-- RESUMO -->
+    <div class="resumo">
+      <div class="resumo-title">Resumo do Orçamento</div>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="resumo-divider"></div>
+      <div class="resumo-total">
+        <div>
+          <div class="resumo-total-label">Custo Total Estimado</div>
+          <div style="font-size:11px; color:var(--text3); margin-top:2px;">Sem IVA · Valores de referência</div>
+        </div>
+        <div class="resumo-total-val" id="totalGeral">0,00 €</div>
+      </div>
+      <div class="resumo-divider"></div>
+      <div class="margem-row">
+        <div class="margem-field">
+          <label>Margem desejada (%)</label>
+          <input type="number" id="margemPct" value="30" min="0" max="200" oninput="recalc()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Preço de venda mínimo</div>
+          <div class="margem-result positivo" id="precoVenda">0,00 €</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Lucro bruto</div>
+          <div class="margem-result positivo" id="lucro">0,00 €</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-export" onclick="window.print()">⬇ Imprimir / Exportar PDF</button>
+        <button class="btn-reset" onclick="resetAll()">↺ Limpar tudo</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DADOS — TABELAS DE PREÇOS
+// ════════════════════════════════════════════════════════════════
+
+const FORNECEDOR_A = [
+  // M10R 190
+  {ref:'M10R-162-190', serie:'M10R 190', medida:162, preco:122.33},
+  {ref:'M10R-152-190', serie:'M10R 190', medida:152, preco:120.08},
+  {ref:'M10R-142-190', serie:'M10R 190', medida:142, preco:117.64},
+  {ref:'M10R-132-190', serie:'M10R 190', medida:132, preco:115.29},
+  {ref:'M10R-122-190', serie:'M10R 190', medida:122, preco:113.05},
+  {ref:'M10R-112-190', serie:'M10R 190', medida:112, preco:110.60},
+  {ref:'M10R-102-190', serie:'M10R 190', medida:102, preco:108.79},
+  {ref:'M10R-092-190', serie:'M10R 190', medida:92,  preco:107.07},
+  {ref:'M10R-082-190', serie:'M10R 190', medida:82,  preco:105.35},
+  // M10 RD
+  {ref:'M10RD-202-190', serie:'M10 RD', medida:202, preco:194.00},
+  {ref:'M10RD-182-190', serie:'M10 RD', medida:182, preco:154.70},
+  {ref:'M10RD-172-190', serie:'M10 RD', medida:172, preco:154.70},
+  {ref:'M10RD-162-190', serie:'M10 RD', medida:162, preco:138.87},
+  // M10P
+  {ref:'M10P-182-190', serie:'M10P', medida:182, preco:159.67},
+  {ref:'M10P-162-190', serie:'M10P', medida:162, preco:142.27},
+  {ref:'M10P-152-190', serie:'M10P', medida:152, preco:140.84},
+  {ref:'M10P-142-190', serie:'M10P', medida:142, preco:139.42},
+  {ref:'M10P-132-190', serie:'M10P', medida:132, preco:136.86},
+  {ref:'M10P-122-190', serie:'M10P', medida:122, preco:135.43},
+  {ref:'M10P-112-190', serie:'M10P', medida:112, preco:132.58},
+  {ref:'M10P-102-190', serie:'M10P', medida:102, preco:131.16},
+  {ref:'M10P-092-190', serie:'M10P', medida:92,  preco:126.88},
+  {ref:'M10P-082-190', serie:'M10P', medida:82,  preco:126.88},
+  // M50 175
+  {ref:'M50-160-175', serie:'M50 175', medida:160, preco:94.27},
+  {ref:'M50-150-175', serie:'M50 175', medida:150, preco:83.84},
+  {ref:'M50-140-175', serie:'M50 175', medida:140, preco:81.62},
+  {ref:'M50-130-175', serie:'M50 175', medida:130, preco:79.39},
+  {ref:'M50-120-175', serie:'M50 175', medida:120, preco:77.16},
+  {ref:'M50-110-175', serie:'M50 175', medida:110, preco:74.93},
+  {ref:'M50-100-175', serie:'M50 175', medida:100, preco:72.72},
+  {ref:'M50-090-175', serie:'M50 175', medida:90,  preco:70.49},
+  {ref:'M50-080-175', serie:'M50 175', medida:80,  preco:68.26},
+  // M50 190
+  {ref:'M50-160-190', serie:'M50 190', medida:160, preco:104.64},
+  {ref:'M50-150-190', serie:'M50 190', medida:150, preco:91.88},
+  {ref:'M50-140-190', serie:'M50 190', medida:140, preco:90.00},
+  {ref:'M50-130-190', serie:'M50 190', medida:130, preco:88.60},
+  {ref:'M50-120-190', serie:'M50 190', medida:120, preco:86.50},
+  {ref:'M50-110-190', serie:'M50 190', medida:110, preco:85.11},
+  {ref:'M50-100-190', serie:'M50 190', medida:100, preco:83.02},
+  {ref:'M50-090-190', serie:'M50 190', medida:90,  preco:81.63},
+  {ref:'M50-080-190', serie:'M50 190', medida:80,  preco:79.53},
+  // M140P
+  {ref:'M140P-182-200', serie:'M140P', medida:182, preco:237.51},
+  {ref:'M140P-162-200', serie:'M140P', medida:162, preco:218.40},
+  {ref:'M140P-152-200', serie:'M140P', medida:152, preco:215.67},
+  {ref:'M140P-142-200', serie:'M140P', medida:142, preco:210.21},
+  {ref:'M140P-132-200', serie:'M140P', medida:132, preco:208.85},
+  {ref:'M140P-122-200', serie:'M140P', medida:122, preco:204.75},
+  {ref:'M140P-112-200', serie:'M140P', medida:112, preco:202.02},
+  {ref:'M140P-102-200', serie:'M140P', medida:102, preco:199.29},
+  {ref:'M140P-092-200', serie:'M140P', medida:92,  preco:197.93},
+  // M140RD
+  {ref:'M140RD-182-200', serie:'M140RD', medida:182, preco:199.10},
+  {ref:'M140RD-162-200', serie:'M140RD', medida:162, preco:181.57},
+  {ref:'M140RD-152-200', serie:'M140RD', medida:152, preco:181.57},
+  {ref:'M140RD-142-200', serie:'M140RD', medida:142, preco:175.06},
+  {ref:'M140RD-132-200', serie:'M140RD', medida:132, preco:175.06},
+  {ref:'M140RD-122-200', serie:'M140RD', medida:122, preco:167.55},
+  {ref:'M140RD-112-200', serie:'M140RD', medida:112, preco:167.55},
+  {ref:'M140RD-102-200', serie:'M140RD', medida:102, preco:159.08},
+  {ref:'M140RD-092-200', serie:'M140RD', medida:92,  preco:159.08},
+  // CR14
+  {ref:'CR14-162', serie:'CR14', medida:162, preco:128.70},
+  {ref:'CR14-152', serie:'CR14', medida:152, preco:128.70},
+  {ref:'CR14-142', serie:'CR14', medida:142, preco:128.70},
+  {ref:'CR14-132', serie:'CR14', medida:132, preco:128.70},
+  {ref:'CR14-122', serie:'CR14', medida:122, preco:128.70},
+  {ref:'CR14-112', serie:'CR14', medida:112, preco:128.70},
+  {ref:'CR14-102', serie:'CR14', medida:102, preco:128.70},
+  {ref:'CR14-092', serie:'CR14', medida:92,  preco:128.70},
+  // CR12
+  {ref:'CR12-166', serie:'CR12', medida:166, preco:48.00},
+  {ref:'CR12-156', serie:'CR12', medida:156, preco:48.00},
+  {ref:'CR12-146', serie:'CR12', medida:146, preco:48.00},
+  {ref:'CR12-136', serie:'CR12', medida:136, preco:48.00},
+  {ref:'CR12-126', serie:'CR12', medida:126, preco:48.00},
+  {ref:'CR12-116', serie:'CR12', medida:116, preco:48.00},
+  {ref:'CR12-106', serie:'CR12', medida:106, preco:48.00},
+  {ref:'CR12-096', serie:'CR12', medida:96,  preco:48.00},
+  // CR1
+  {ref:'CR1', serie:'CR1', medida:null, preco:17.70},
+  // Costa porta-almofadas
+  {ref:'CPA-182', serie:'Costa Porta-Almofadas', medida:182, preco:39.63},
+  {ref:'CPA-162', serie:'Costa Porta-Almofadas', medida:162, preco:35.84},
+  {ref:'CPA-152', serie:'Costa Porta-Almofadas', medida:152, preco:35.84},
+  {ref:'CPA-142', serie:'Costa Porta-Almofadas', medida:142, preco:34.39},
+  {ref:'CPA-132', serie:'Costa Porta-Almofadas', medida:132, preco:34.39},
+  {ref:'CPA-122', serie:'Costa Porta-Almofadas', medida:122, preco:32.63},
+  {ref:'CPA-112', serie:'Costa Porta-Almofadas', medida:112, preco:32.63},
+  {ref:'CPA-102', serie:'Costa Porta-Almofadas', medida:102, preco:30.89},
+  {ref:'CPA-092', serie:'Costa Porta-Almofadas', medida:92,  preco:29.73},
+  // Costa simples
+  {ref:'CS-182', serie:'Costa Simples', medida:182, preco:17.11},
+  {ref:'CS-162', serie:'Costa Simples', medida:162, preco:16.17},
+  {ref:'CS-152', serie:'Costa Simples', medida:152, preco:16.17},
+  {ref:'CS-142', serie:'Costa Simples', medida:142, preco:15.23},
+  {ref:'CS-132', serie:'Costa Simples', medida:132, preco:15.23},
+  {ref:'CS-122', serie:'Costa Simples', medida:122, preco:14.28},
+  {ref:'CS-112', serie:'Costa Simples', medida:112, preco:14.28},
+  {ref:'CS-102', serie:'Costa Simples', medida:102, preco:12.86},
+  {ref:'CS-092', serie:'Costa Simples', medida:92,  preco:12.86},
+  // Nido M1R
+  {ref:'Nido M1R 190090', serie:'Nido M1R', medida:null, preco:49.40},
+  {ref:'Nido M1R 183088', serie:'Nido M1R', medida:null, preco:49.40},
+  {ref:'Nido M1R 183080', serie:'Nido M1R', medida:null, preco:49.40},
+];
+
+// Espumas — Fornecedor B — Convencionais (selecção das mais usadas em mobiliário)
+const ESPUMAS = [
+  // Densidades convencionais — preço por placa 2000x1200mm
+  {codigo:'A1', nome:'1524 Dura Branca', altura:10, preco:3.28},
+  {codigo:'A2', nome:'1524 Dura Branca', altura:20, preco:6.56},
+  {codigo:'A3', nome:'1524 Dura Branca', altura:30, preco:9.84},
+  {codigo:'A4', nome:'1524 Dura Branca', altura:40, preco:13.12},
+  {codigo:'A5', nome:'1524 Dura Branca', altura:50, preco:16.41},
+  {codigo:'A6', nome:'1524 Dura Branca', altura:60, preco:19.69},
+  {codigo:'A7', nome:'1524 Dura Branca', altura:70, preco:22.97},
+  {codigo:'A8', nome:'1524 Dura Branca', altura:80, preco:26.25},
+  {codigo:'A9', nome:'1524 Dura Branca', altura:100, preco:32.81},
+  {codigo:'B1', nome:'1829 Dura Branca', altura:10, preco:3.51},
+  {codigo:'B2', nome:'1829 Dura Branca', altura:20, preco:7.03},
+  {codigo:'B3', nome:'1829 Dura Branca', altura:30, preco:10.54},
+  {codigo:'B4', nome:'1829 Dura Branca', altura:40, preco:14.06},
+  {codigo:'B5', nome:'1829 Dura Branca', altura:50, preco:17.57},
+  {codigo:'B6', nome:'1829 Dura Branca', altura:60, preco:21.08},
+  {codigo:'B7', nome:'1829 Dura Branca', altura:80, preco:28.11},
+  {codigo:'B8', nome:'1829 Dura Branca', altura:100, preco:35.14},
+  {codigo:'C1', nome:'2032 Dura Amarela', altura:10, preco:3.87},
+  {codigo:'C2', nome:'2032 Dura Amarela', altura:20, preco:7.74},
+  {codigo:'C3', nome:'2032 Dura Amarela', altura:30, preco:11.61},
+  {codigo:'C4', nome:'2032 Dura Amarela', altura:40, preco:15.48},
+  {codigo:'C5', nome:'2032 Dura Amarela', altura:50, preco:19.35},
+  {codigo:'C6', nome:'2032 Dura Amarela', altura:60, preco:23.21},
+  {codigo:'C7', nome:'2032 Dura Amarela', altura:80, preco:30.95},
+  {codigo:'C8', nome:'2032 Dura Amarela', altura:100, preco:38.69},
+  {codigo:'D1', nome:'1815 SuperSoft Branca', altura:10, preco:3.51},
+  {codigo:'D2', nome:'1815 SuperSoft Branca', altura:20, preco:7.03},
+  {codigo:'D3', nome:'1815 SuperSoft Branca', altura:30, preco:10.54},
+  {codigo:'D4', nome:'1815 SuperSoft Branca', altura:40, preco:14.06},
+  {codigo:'D5', nome:'1815 SuperSoft Branca', altura:50, preco:17.57},
+  {codigo:'D6', nome:'1815 SuperSoft Branca', altura:60, preco:21.08},
+  {codigo:'D7', nome:'1815 SuperSoft Branca', altura:80, preco:28.11},
+  {codigo:'D8', nome:'1815 SuperSoft Branca', altura:100, preco:35.14},
+  {codigo:'E1', nome:'2325 Soft Amarela', altura:10, preco:4.68},
+  {codigo:'E2', nome:'2325 Soft Amarela', altura:20, preco:9.36},
+  {codigo:'E3', nome:'2325 Soft Amarela', altura:30, preco:14.04},
+  {codigo:'E4', nome:'2325 Soft Amarela', altura:40, preco:18.72},
+  {codigo:'E5', nome:'2325 Soft Amarela', altura:50, preco:23.40},
+  {codigo:'E6', nome:'2325 Soft Amarela', altura:60, preco:28.08},
+  {codigo:'E7', nome:'2325 Soft Amarela', altura:80, preco:37.43},
+  {codigo:'E8', nome:'2325 Soft Amarela', altura:100, preco:46.79},
+  {codigo:'F1', nome:'2835 Bege 28D/28M', altura:10, preco:5.27},
+  {codigo:'F2', nome:'2835 Bege 28D/28M', altura:20, preco:10.54},
+  {codigo:'F3', nome:'2835 Bege 28D/28M', altura:30, preco:15.81},
+  {codigo:'F4', nome:'2835 Bege 28D/28M', altura:40, preco:21.07},
+  {codigo:'F5', nome:'2835 Bege 28D/28M', altura:50, preco:26.34},
+  {codigo:'F6', nome:'2835 Bege 28D/28M', altura:60, preco:31.61},
+  {codigo:'F7', nome:'2835 Bege 28D/28M', altura:80, preco:42.15},
+  {codigo:'F8', nome:'2835 Bege 28D/28M', altura:100, preco:52.68},
+  {codigo:'G1', nome:'3051 Cinza Soft Rosa', altura:10, preco:5.63},
+  {codigo:'G2', nome:'3051 Cinza Soft Rosa', altura:20, preco:11.25},
+  {codigo:'G3', nome:'3051 Cinza Soft Rosa', altura:30, preco:16.88},
+  {codigo:'G4', nome:'3051 Cinza Soft Rosa', altura:40, preco:22.51},
+  {codigo:'G5', nome:'3051 Cinza Soft Rosa', altura:50, preco:28.14},
+  {codigo:'G6', nome:'3051 Cinza Soft Rosa', altura:60, preco:33.76},
+  {codigo:'G7', nome:'3051 Cinza Soft Rosa', altura:80, preco:45.02},
+  {codigo:'G8', nome:'3051 Cinza Soft Rosa', altura:100, preco:56.27},
+  {codigo:'H1', nome:'3223 Soft Azul', altura:10, preco:6.71},
+  {codigo:'H2', nome:'3223 Soft Azul', altura:20, preco:13.42},
+  {codigo:'H3', nome:'3223 Soft Azul', altura:30, preco:20.13},
+  {codigo:'H4', nome:'3223 Soft Azul', altura:40, preco:26.84},
+  {codigo:'H5', nome:'3223 Soft Azul', altura:50, preco:33.55},
+  {codigo:'H6', nome:'3223 Soft Azul', altura:60, preco:40.26},
+  {codigo:'H7', nome:'3223 Soft Azul', altura:80, preco:53.67},
+  {codigo:'H8', nome:'3223 Soft Azul', altura:100, preco:67.09},
+  // Especiais HR
+  {codigo:'HR1', nome:'HR 2513 Azul', altura:20, preco:9.42},
+  {codigo:'HR2', nome:'HR 2513 Azul', altura:30, preco:14.14},
+  {codigo:'HR3', nome:'HR 2513 Azul', altura:40, preco:18.85},
+  {codigo:'HR4', nome:'HR 2513 Azul', altura:50, preco:23.56},
+  {codigo:'HR5', nome:'HR 2513 Azul', altura:60, preco:28.27},
+  {codigo:'HR6', nome:'HR 2513 Azul', altura:80, preco:37.70},
+  {codigo:'HR7', nome:'HR 2513 Azul', altura:100, preco:47.12},
+  {codigo:'HR8', nome:'HR 3033 Branca', altura:20, preco:11.31},
+  {codigo:'HR9', nome:'HR 3033 Branca', altura:30, preco:16.96},
+  {codigo:'HR10', nome:'HR 3033 Branca', altura:40, preco:22.62},
+  {codigo:'HR11', nome:'HR 3033 Branca', altura:50, preco:28.27},
+  {codigo:'HR12', nome:'HR 3033 Branca', altura:60, preco:33.93},
+  {codigo:'HR13', nome:'HR 3033 Branca', altura:80, preco:45.24},
+  {codigo:'HR14', nome:'HR 3033 Branca', altura:100, preco:56.55},
+  {codigo:'HR15', nome:'HR 4235 Branca', altura:20, preco:15.83},
+  {codigo:'HR16', nome:'HR 4235 Branca', altura:30, preco:23.75},
+  {codigo:'HR17', nome:'HR 4235 Branca', altura:40, preco:31.67},
+  {codigo:'HR18', nome:'HR 4235 Branca', altura:50, preco:39.58},
+  {codigo:'HR19', nome:'HR 4235 Branca', altura:60, preco:47.50},
+  {codigo:'HR20', nome:'HR 4235 Branca', altura:80, preco:63.33},
+  {codigo:'HR21', nome:'HR 4235 Branca', altura:100, preco:79.17},
+];
+
+// MDF — Fornecedor C — Standard e Hidrófugo (€/m²)
+const MDF_TABELA = [
+  {codigo:'M1', nome:'MDF 2,5mm Standard', esp:'2.5mm', tipo:'Standard', preco_base:3.23},
+  {codigo:'M2', nome:'MDF 3mm Standard', esp:'3mm', tipo:'Standard', preco_base:3.78},
+  {codigo:'M3', nome:'MDF 4mm Standard', esp:'4mm', tipo:'Standard', preco_base:4.88},
+  {codigo:'M4', nome:'MDF 5mm Standard', esp:'5mm', tipo:'Standard', preco_base:6.02},
+  {codigo:'M5', nome:'MDF 6mm Standard', esp:'6mm', tipo:'Standard', preco_base:7.11},
+  {codigo:'M6', nome:'MDF 8mm Standard', esp:'8mm', tipo:'Standard', preco_base:8.31},
+  {codigo:'M7', nome:'MDF 10mm Standard', esp:'10mm', tipo:'Standard', preco_base:9.94},
+  {codigo:'M8', nome:'MDF 12mm Standard', esp:'12mm', tipo:'Standard', preco_base:11.38},
+  {codigo:'M9', nome:'MDF 16mm Standard', esp:'16mm', tipo:'Standard', preco_base:14.60},
+  {codigo:'M10', nome:'MDF 19mm Standard', esp:'19mm', tipo:'Standard', preco_base:17.33},
+  {codigo:'M11', nome:'MDF 22mm Standard', esp:'22mm', tipo:'Standard', preco_base:20.46},
+  {codigo:'M12', nome:'MDF 25mm Standard', esp:'25mm', tipo:'Standard', preco_base:23.71},
+  {codigo:'M13', nome:'MDF 30mm Standard', esp:'30mm', tipo:'Standard', preco_base:28.46},
+  {codigo:'M14', nome:'MDF 6mm Hidrófugo', esp:'6mm', tipo:'Hidrófugo', preco_base:10.65},
+  {codigo:'M15', nome:'MDF 8mm Hidrófugo', esp:'8mm', tipo:'Hidrófugo', preco_base:10.82},
+  {codigo:'M16', nome:'MDF 10mm Hidrófugo', esp:'10mm', tipo:'Hidrófugo', preco_base:12.92},
+  {codigo:'M17', nome:'MDF 12mm Hidrófugo', esp:'12mm', tipo:'Hidrófugo', preco_base:14.79},
+  {codigo:'M18', nome:'MDF 16mm Hidrófugo', esp:'16mm', tipo:'Hidrófugo', preco_base:18.97},
+  {codigo:'M19', nome:'MDF 19mm Hidrófugo', esp:'19mm', tipo:'Hidrófugo', preco_base:22.52},
+  {codigo:'M20', nome:'MDF 22mm Hidrófugo', esp:'22mm', tipo:'Hidrófugo', preco_base:26.60},
+  {codigo:'M21', nome:'MDF 25mm Hidrófugo', esp:'25mm', tipo:'Hidrófugo', preco_base:30.84},
+  {codigo:'M22', nome:'MDF 30mm Hidrófugo', esp:'30mm', tipo:'Hidrófugo', preco_base:37.00},
+];
+
+// Contraplacado — Fornecedor C (€/m²)
+const CONTRA_TABELA = [
+  {codigo:'CP1', nome:'Choupo 4mm B/BB', esp:'4mm', tipo:'Choupo B/BB', preco_base:12.57},
+  {codigo:'CP2', nome:'Choupo 6mm B/BB', esp:'6mm', tipo:'Choupo B/BB', preco_base:16.61},
+  {codigo:'CP3', nome:'Choupo 7mm B/BB', esp:'7mm', tipo:'Choupo B/BB', preco_base:21.56},
+  {codigo:'CP4', nome:'Choupo 10mm B/BB', esp:'10mm', tipo:'Choupo B/BB', preco_base:20.10},
+  {codigo:'CP5', nome:'Choupo 12mm B/BB', esp:'12mm', tipo:'Choupo B/BB', preco_base:22.48},
+  {codigo:'CP6', nome:'Choupo 15mm B/BB', esp:'15mm', tipo:'Choupo B/BB', preco_base:25.99},
+  {codigo:'CP7', nome:'Choupo 18mm B/BB', esp:'18mm', tipo:'Choupo B/BB', preco_base:30.57},
+  {codigo:'CP8', nome:'Choupo 22mm B/BB', esp:'22mm', tipo:'Choupo B/BB', preco_base:35.43},
+  {codigo:'CP9', nome:'Choupo 24mm B/BB', esp:'24mm', tipo:'Choupo B/BB', preco_base:37.67},
+  {codigo:'CP10', nome:'Choupo 30mm B/BB', esp:'30mm', tipo:'Choupo B/BB', preco_base:48.42},
+  {codigo:'CP11', nome:'Urograndis 5mm B/C', esp:'5mm', tipo:'Urograndis B/C', preco_base:16.50},
+  {codigo:'CP12', nome:'Urograndis 8mm B/C', esp:'8mm', tipo:'Urograndis B/C', preco_base:16.81},
+  {codigo:'CP13', nome:'Urograndis 9mm B/C', esp:'9mm', tipo:'Urograndis B/C', preco_base:15.20},
+  {codigo:'CP14', nome:'Urograndis 12mm B/C', esp:'12mm', tipo:'Urograndis B/C', preco_base:19.36},
+  {codigo:'CP15', nome:'Urograndis 15mm B/C', esp:'15mm', tipo:'Urograndis B/C', preco_base:23.53},
+  {codigo:'CP16', nome:'Urograndis 18mm B/C', esp:'18mm', tipo:'Urograndis B/C', preco_base:27.40},
+  {codigo:'CP17', nome:'Urograndis 30mm B/C', esp:'30mm', tipo:'Urograndis B/C', preco_base:47.08},
+  {codigo:'CP18', nome:'Bétula 6,5mm BB/CP', esp:'6.5mm', tipo:'Bétula BB/CP', preco_base:11.57},
+  {codigo:'CP19', nome:'Bétula 8mm BB/CP', esp:'8mm', tipo:'Bétula BB/CP', preco_base:11.72},
+  {codigo:'CP20', nome:'Bétula 12mm BB/CP', esp:'12mm', tipo:'Bétula BB/CP', preco_base:15.74},
+  {codigo:'CP21', nome:'Bétula 15mm BB/CP', esp:'15mm', tipo:'Bétula BB/CP', preco_base:19.36},
+  {codigo:'CP22', nome:'Bétula 18mm BB/CP', esp:'18mm', tipo:'Bétula BB/CP', preco_base:22.84},
+  {codigo:'CP23', nome:'Bétula 21mm BB/CP', esp:'21mm', tipo:'Bétula BB/CP', preco_base:31.47},
+];
+
+const CASCOS_PRECOS = [20, 40, 60, 80, 100, 120];
+const EMBAL_PRECOS = [5, 10, 15, 20, 25];
+
+// Descontos em cascata
+const DESC_MDF = 0.70 * 0.68;       // 30+32%
+const DESC_CONTRA = 0.70 * 0.83;    // 30+17%
+
+// ════════════════════════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════════════════════════
+let counters = {cascos:0, fornecedor_a:0, espuma:0, mdf:0, contra:0, mo:0, matdiv:0, embal:0};
+let sections = {cascos:true, fornecedor_a:true, espuma:true, mdf:true, contra:true, mo:true, matdiv:true, embal:true};
+
+function toggleSection(id) {
+  sections[id] = !sections[id];
+  document.getElementById('body-'+id).style.display = sections[id] ? '' : 'none';
+}
+
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+function fmt(v) { return v.toFixed(2).replace('.',',') + ' €'; }
+function getNum(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function buildFornecedorAOptions() {
+  return FORNECEDOR_A.map(i => `<option value="${i.preco}" data-ref="${i.ref}">[${i.serie}] ${i.ref}${i.medida?' — '+i.medida+'mm':''} — ${fmt(i.preco)}</option>`).join('');
+}
+function buildEspumaOptions() {
+  return ESPUMAS.map(i => `<option value="${i.preco}" data-cod="${i.codigo}">[${i.codigo}] ${i.nome} — ${i.altura}mm — ${fmt(i.preco)}/placa</option>`).join('');
+}
+function buildMdfOptions() {
+  return MDF_TABELA.map(i => {
+    const final = i.preco_base * DESC_MDF;
+    return `<option value="${final}" data-cod="${i.codigo}">[${i.codigo}] ${i.nome} — ${fmt(final)}/m²</option>`;
+  }).join('');
+}
+function buildContraOptions() {
+  return CONTRA_TABELA.map(i => {
+    const final = i.preco_base * DESC_CONTRA;
+    return `<option value="${final}" data-cod="${i.codigo}">[${i.codigo}] ${i.nome} — ${fmt(final)}/m²</option>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// ADD ROWS
+// ════════════════════════════════════════════════════════════════
+function addCasco() {
+  const id = ++counters.cascos;
+  const opts = CASCOS_PRECOS.map(p => `<option value="${p}">${p} €/m³</option>`).join('');
+  const html = `
+  <div class="item-row cols-4" id="casco-${id}">
+    <div>
+      <div class="item-label">Descrição do casco</div>
+      <input type="text" class="qty-input" placeholder="Ex: Assento 3L" oninput="recalc()">
+    </div>
+    <div>
+      <div class="item-label">Volume (m³)</div>
+      <input type="number" class="qty-input" placeholder="0.000" step="0.001" min="0" oninput="recalc()" id="casco-vol-${id}">
+    </div>
+    <div>
+      <div class="item-label">€/m³ (referência)</div>
+      <select class="item-select" id="casco-preco-${id}" onchange="recalc()">${opts}</select>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="casco-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('casco-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-cascos').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addFornecedorA() {
+  const id = ++counters.fornecedor_a;
+  const html = `
+  <div class="item-row cols-3" id="fornecedor_a-${id}">
+    <div>
+      <div class="item-label">Referência Fornecedor A</div>
+      <select class="item-select" id="fornecedor_a-ref-${id}" onchange="recalc()">${buildFornecedorAOptions()}</select>
+    </div>
+    <div>
+      <div class="item-label">Quantidade (un)</div>
+      <input type="number" class="qty-input" value="1" min="0" oninput="recalc()" id="fornecedor_a-qty-${id}">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="fornecedor_a-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('fornecedor_a-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-fornecedor_a').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addEspuma() {
+  const id = ++counters.espuma;
+  const html = `
+  <div class="item-row cols-3" id="espuma-${id}">
+    <div>
+      <div class="item-label">Referência Espuma [Fornecedor B]</div>
+      <select class="item-select" id="espuma-ref-${id}" onchange="recalc()">${buildEspumaOptions()}</select>
+    </div>
+    <div>
+      <div class="item-label">Quantidade (placas)</div>
+      <input type="number" class="qty-input" value="1" min="0" oninput="recalc()" id="espuma-qty-${id}">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="espuma-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('espuma-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-espuma').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addMdf() {
+  const id = ++counters.mdf;
+  const html = `
+  <div class="item-row cols-3" id="mdf-${id}">
+    <div>
+      <div class="item-label">Referência MDF [Fornecedor C — desc. 30+32%]</div>
+      <select class="item-select" id="mdf-ref-${id}" onchange="recalc()">${buildMdfOptions()}</select>
+    </div>
+    <div>
+      <div class="item-label">Área (m²)</div>
+      <input type="number" class="qty-input" value="1" min="0" step="0.01" oninput="recalc()" id="mdf-qty-${id}">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="mdf-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('mdf-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-mdf').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addContra() {
+  const id = ++counters.contra;
+  const html = `
+  <div class="item-row cols-3" id="contra-${id}">
+    <div>
+      <div class="item-label">Referência Contraplacado [Fornecedor C — desc. 30+17%]</div>
+      <select class="item-select" id="contra-ref-${id}" onchange="recalc()">${buildContraOptions()}</select>
+    </div>
+    <div>
+      <div class="item-label">Área (m²)</div>
+      <input type="number" class="qty-input" value="1" min="0" step="0.01" oninput="recalc()" id="contra-qty-${id}">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="contra-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('contra-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-contra').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addMO() {
+  const id = ++counters.mo;
+  const html = `
+  <div class="item-row cols-4" id="mo-${id}">
+    <div>
+      <div class="item-label">Descrição da operação</div>
+      <input type="text" class="qty-input" placeholder="Ex: Costura, Montagem..." oninput="recalc()">
+    </div>
+    <div>
+      <div class="item-label">Tempo (minutos)</div>
+      <input type="number" class="qty-input" value="0" min="0" oninput="recalc()" id="mo-min-${id}">
+    </div>
+    <div>
+      <div class="item-label">€/hora</div>
+      <input type="number" class="qty-input" id="mo-hora-${id}" value="5.5" step="0.1" oninput="recalc()">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="mo-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('mo-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-mo').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addMatDiv() {
+  const id = ++counters.matdiv;
+  const html = `
+  <div class="item-row cols-4" id="matdiv-${id}">
+    <div>
+      <div class="item-label">Descrição</div>
+      <input type="text" class="qty-input" placeholder="Ex: Agrafos, cola, precintas..." oninput="recalc()">
+    </div>
+    <div>
+      <div class="item-label">Quantidade (un)</div>
+      <input type="number" class="qty-input" value="0" min="0" oninput="recalc()" id="matdiv-qty-${id}">
+    </div>
+    <div>
+      <div class="item-label">€/unidade</div>
+      <input type="number" class="qty-input" id="matdiv-unit-${id}" value="15" step="0.5" oninput="recalc()">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="matdiv-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('matdiv-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-matdiv').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function addEmbal() {
+  const id = ++counters.embal;
+  const opts = EMBAL_PRECOS.map(p => `<option value="${p}">${p} € / unidade</option>`).join('');
+  const html = `
+  <div class="item-row cols-3" id="embal-${id}">
+    <div>
+      <div class="item-label">Tipo de embalagem</div>
+      <input type="text" class="qty-input" placeholder="Ex: Caixa, manga plástica..." oninput="recalc()">
+    </div>
+    <div>
+      <div class="item-label">Custo estimado</div>
+      <select class="item-select" id="embal-preco-${id}" onchange="recalc()">${opts}</select>
+    </div>
+    <div>
+      <div class="item-label">Quantidade (un)</div>
+      <input type="number" class="qty-input" value="1" min="0" oninput="recalc()" id="embal-qty-${id}">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="item-label">Total</div>
+      <div class="item-val highlight" id="embal-tot-${id}">0,00 €</div>
+    </div>
+    <button class="btn-remove" onclick="removeRow('embal-${id}');recalc()">✕</button>
+  </div>`;
+  document.getElementById('rows-embal').insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function removeRow(id) { document.getElementById(id)?.remove(); }
+
+// ════════════════════════════════════════════════════════════════
+// CÁLCULO
+// ════════════════════════════════════════════════════════════════
+function sumSection(prefix, calcFn) {
+  let total = 0;
+  document.querySelectorAll(`[id^="${prefix}-"]`).forEach(row => {
+    if (!row.id.includes('-tot-') && !row.id.includes('-vol-') && !row.id.includes('-ref-') &&
+        !row.id.includes('-qty-') && !row.id.includes('-preco-') && !row.id.includes('-min-') &&
+        !row.id.includes('-hora-') && !row.id.includes('-unit-')) {
+      const idNum = row.id.split('-').pop();
+      const val = calcFn(idNum);
+      const totEl = document.getElementById(`${prefix}-tot-${idNum}`);
+      if (totEl) totEl.textContent = fmt(val);
+      total += val;
+    }
+  });
+  return total;
+}
+
+function recalc() {
+  let totals = {};
+
+  // Cascos
+  let tCascos = 0;
+  document.querySelectorAll('[id^="casco-"]:not([id*="-vol"]):not([id*="-preco"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('casco-','');
+    if (isNaN(n)) return;
+    const vol = parseFloat(document.getElementById(`casco-vol-${n}`)?.value) || 0;
+    const preco = parseFloat(document.getElementById(`casco-preco-${n}`)?.value) || 0;
+    const v = vol * preco;
+    const el = document.getElementById(`casco-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tCascos += v;
+  });
+  totals.cascos = tCascos;
+
+  // Fornecedor A — Mecanismos
+  let tFornA = 0;
+  document.querySelectorAll('[id^="fornecedor_a-"]:not([id*="-ref"]):not([id*="-qty"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('fornecedor_a-','');
+    if (isNaN(n)) return;
+    const preco = parseFloat(document.getElementById(`fornecedor_a-ref-${n}`)?.value) || 0;
+    const qty = parseFloat(document.getElementById(`fornecedor_a-qty-${n}`)?.value) || 0;
+    const v = preco * qty;
+    const el = document.getElementById(`fornecedor_a-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tFornA += v;
+  });
+  totals.fornecedor_a = tFornA;
+
+  // Espumas
+  let tEspuma = 0;
+  document.querySelectorAll('[id^="espuma-"]:not([id*="-ref"]):not([id*="-qty"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('espuma-','');
+    if (isNaN(n)) return;
+    const preco = parseFloat(document.getElementById(`espuma-ref-${n}`)?.value) || 0;
+    const qty = parseFloat(document.getElementById(`espuma-qty-${n}`)?.value) || 0;
+    const v = preco * qty;
+    const el = document.getElementById(`espuma-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tEspuma += v;
+  });
+  totals.espuma = tEspuma;
+
+  // MDF
+  let tMdf = 0;
+  document.querySelectorAll('[id^="mdf-"]:not([id*="-ref"]):not([id*="-qty"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('mdf-','');
+    if (isNaN(n)) return;
+    const preco = parseFloat(document.getElementById(`mdf-ref-${n}`)?.value) || 0;
+    const qty = parseFloat(document.getElementById(`mdf-qty-${n}`)?.value) || 0;
+    const v = preco * qty;
+    const el = document.getElementById(`mdf-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tMdf += v;
+  });
+  totals.mdf = tMdf;
+
+  // Contraplacado
+  let tContra = 0;
+  document.querySelectorAll('[id^="contra-"]:not([id*="-ref"]):not([id*="-qty"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('contra-','');
+    if (isNaN(n)) return;
+    const preco = parseFloat(document.getElementById(`contra-ref-${n}`)?.value) || 0;
+    const qty = parseFloat(document.getElementById(`contra-qty-${n}`)?.value) || 0;
+    const v = preco * qty;
+    const el = document.getElementById(`contra-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tContra += v;
+  });
+  totals.contra = tContra;
+
+  // Mão de obra
+  let tMO = 0;
+  document.querySelectorAll('[id^="mo-"]:not([id*="-min"]):not([id*="-hora"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('mo-','');
+    if (isNaN(n)) return;
+    const min = parseFloat(document.getElementById(`mo-min-${n}`)?.value) || 0;
+    const hora = parseFloat(document.getElementById(`mo-hora-${n}`)?.value) || 5.5;
+    const v = (min / 60) * hora;
+    const el = document.getElementById(`mo-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tMO += v;
+  });
+  totals.mo = tMO;
+
+  // Materiais diversos
+  let tMat = 0;
+  document.querySelectorAll('[id^="matdiv-"]:not([id*="-qty"]):not([id*="-unit"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('matdiv-','');
+    if (isNaN(n)) return;
+    const qty = parseFloat(document.getElementById(`matdiv-qty-${n}`)?.value) || 0;
+    const unit = parseFloat(document.getElementById(`matdiv-unit-${n}`)?.value) || 15;
+    const v = qty * unit;
+    const el = document.getElementById(`matdiv-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tMat += v;
+  });
+  totals.matdiv = tMat;
+
+  // Embalagem
+  let tEmbal = 0;
+  document.querySelectorAll('[id^="embal-"]:not([id*="-preco"]):not([id*="-qty"]):not([id*="-tot"])').forEach(row => {
+    const n = row.id.replace('embal-','');
+    if (isNaN(n)) return;
+    const preco = parseFloat(document.getElementById(`embal-preco-${n}`)?.value) || 0;
+    const qty = parseFloat(document.getElementById(`embal-qty-${n}`)?.value) || 1;
+    const v = preco * qty;
+    const el = document.getElementById(`embal-tot-${n}`);
+    if (el) el.textContent = fmt(v);
+    tEmbal += v;
+  });
+  totals.embal = tEmbal;
+
+  // Actualizar totais por secção
+  const labels = {
+    cascos:'Cascos', fornecedor_a:'Mecanismos — Fornecedor A', espuma:'Espumas — Fornecedor B',
+    mdf:'MDF', contra:'Contraplacado', mo:'Mão de Obra',
+    matdiv:'Materiais Diversos', embal:'Embalagem'
+  };
+  const colors = {
+    cascos:'#e8a020', fornecedor_a:'#3d8bcd', espuma:'#f85149',
+    mdf:'#3fb950', contra:'#58a6ff', mo:'#bc8cff',
+    matdiv:'#ffa657', embal:'#ff7b72'
+  };
+
+  Object.keys(totals).forEach(k => {
+    const el = document.getElementById(`total-${k}`);
+    if (el) el.textContent = fmt(totals[k]);
+  });
+
+  const grand = Object.values(totals).reduce((a,b)=>a+b, 0);
+  document.getElementById('totalGeral').textContent = fmt(grand);
+
+  // Margem
+  const margemPct = parseFloat(document.getElementById('margemPct')?.value) || 0;
+  const precoVenda = grand > 0 ? grand / (1 - margemPct/100) : 0;
+  const lucro = precoVenda - grand;
+  document.getElementById('precoVenda').textContent = fmt(precoVenda);
+  document.getElementById('lucro').textContent = fmt(lucro);
+
+  // Breakdown
+  const bdEl = document.getElementById('breakdown');
+  if (grand > 0) {
+    bdEl.innerHTML = Object.entries(totals).filter(([,v])=>v>0).map(([k,v]) => `
+      <div class="breakdown-row">
+        <span class="cat">${labels[k]}</span>
+        <div class="breakdown-bar-wrap">
+          <div class="breakdown-bar" style="width:${(v/grand*100).toFixed(1)}%;background:${colors[k]}"></div>
+        </div>
+        <span class="pct">${(v/grand*100).toFixed(1)}%</span>
+        <span class="breakdown-val">${fmt(v)}</span>
+      </div>`).join('');
+  } else {
+    bdEl.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:4px 0;">Adicione itens para ver o breakdown de custos.</div>';
+  }
+}
+
+function updateHeader() {
+  const cli = document.getElementById('cliente').value;
+  const enc = document.getElementById('encomenda').value;
+  const dt = document.getElementById('data').value;
+  document.getElementById('mainTitle').textContent = cli ? `${cli}${enc ? ' — ' + enc : ''}` : 'Nova Encomenda';
+  document.getElementById('mainSub').textContent = dt ? `Data: ${dt}` : 'Preencha os campos à esquerda para identificar o orçamento';
+}
+
+function resetAll() {
+  if (!confirm('Limpar todo o orçamento?')) return;
+  ['rows-cascos','rows-fornecedor_a','rows-espuma','rows-mdf','rows-contra','rows-mo','rows-matdiv','rows-embal']
+    .forEach(id => { document.getElementById(id).innerHTML = ''; });
+  counters = {cascos:0,fornecedor_a:0,espuma:0,mdf:0,contra:0,mo:0,matdiv:0,embal:0};
+  document.getElementById('cliente').value = '';
+  document.getElementById('encomenda').value = '';
+  document.getElementById('data').value = '';
+  document.getElementById('produto').value = '';
+  updateHeader(); recalc();
+}
+
+// Init
+document.getElementById('data').valueAsDate = new Date();
+updateHeader();
+recalc();
+</script>
+</body>
+</html>
