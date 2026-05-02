@@ -20,10 +20,10 @@ Especialização focada na formação técnica e prática em auditoria contábil
 |--------|-------|--------|
 | Ambientação | — | ✅ Concluído |
 | A Profissão de Perito Contábil | 40h | ✅ Concluído |
-| Conceitos, Técnicas de Auditoria e o Auditor Independente | 40h | 🔄 Em curso |
-| Auditoria e Controles Internos | 40h | ⏳ A iniciar |
-| Estrutura Conceitual Básica da Contabilidade | 40h | ⏳ A iniciar |
-| Análise das Demonstrações Contábeis | 40h | ⏳ A iniciar |
+| Conceitos, Técnicas de Auditoria e o Auditor Independente | 40h | ✅ Concluído |
+| Auditoria e Controles Internos | 40h | ✅ Concluído |
+| Estrutura Conceitual Básica da Contabilidade | 40h | ✅ Concluído |
+| Análise das Demonstrações Contábeis | 40h | ✅ Concluído |
 | Contabilidade Societária | 40h | ⏳ A iniciar |
 | Princípios e Pronunciamentos Contábeis | 40h | ⏳ A iniciar |
 | Perícia Contábil | 40h | ⏳ A iniciar |
