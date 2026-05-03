@@ -20,11 +20,13 @@ Em contexto de insolvência sem estrutura de auditoria prévia, foi exercido um 
 
 | Área | Nível | Evidência neste repositório |
 |------|-------|----------------------------|
-| Auditoria Interna | Avançado | 4 RAIs emitidos com metodologia COSO |
+| Auditoria Interna | Avançado | 5 RAIs emitidos com metodologia COSO |
 | Controlos Internos | Avançado | SoD, Blind Receiving, XML vs PO |
 | Detecção de Fraude | Intermediário | Caso documentado + auditoria de fornecedor |
+| Diagnóstico Sistémico | Intermediário | RAI-005 — ciclo de destruição de valor (24 meses) |
 | FP&A / Variance Analysis | Intermediário | Reporting multinacional 5 países |
 | ERP (AS/400) | Intermediário | Auditoria de dados mestres (BOM) |
+| Ferramentas de Controlo | Intermediário | Dashboard HTML + Excel — resposta operacional a RAIs |
 | Finanças Digitais / Blockchain | Avançado | Tecnólogo concluído + [GitHub Web3](.) |
 | Regulação MiCA (EU) | Básico-Intermediário | Contexto profissional europeu |
 
@@ -38,7 +40,8 @@ portfolio-auditoria/
 ├── induflex/                        # Projectos executados em ambiente real
 │   ├── relatorios/                  # Relatórios de Auditoria Interna (RAI) anonimizados
 │   ├── metodologias/                # Como cada processo foi executado
-│   └── frameworks/                  # Frameworks e referências técnicas aplicados
+│   ├── frameworks/                  # Frameworks e referências técnicas aplicados
+│   └── ferramentas/                 # Ferramentas operacionais desenvolvidas a partir dos RAIs
 │
 ├── formacao/                        # Percurso académico e certificações
 ├── carreira/                        # Roadmap e competências em desenvolvimento
@@ -61,6 +64,12 @@ Relatório formal identificando deficiência de controlo (Monitoring Activities 
 ### [RAI-004 — Auditoria de Conformidade de Preços (Fornecedor)](./induflex/relatorios/RAI-004-auditoria-fornecedor.md)
 Análise de 51 modelos. Identificação de sobrefacturação sistemática superior a 170% em 98% dos modelos. Relatório entregue para reunião de confrontação comercial.
 
+### [RAI-005 — Ciclo de Destruição de Valor](./induflex/relatorios/RAI-2026-005-ciclo-destruicao-valor.md)
+Diagnóstico sistémico operacional baseado em 24 meses de observação contínua. Mapeia 8 elos interdependentes — da causa raiz (overbooking) ao ciclo completo — com 6 constatações formais e nota de independência IIA Standard 1130 declarada.
+
+### [Dashboard de Orçamentação](./induflex/ferramentas/orcamento-encomenda.html)
+Ferramenta de controlo interno desenvolvida como resposta operacional ao RAI-003. Calcula custo total e margem por encomenda em tempo real — eliminando o pricing por intuição identificado como deficiência de controlo.
+
 ---
 
 ## 🎓 Formação Académica
@@ -68,8 +77,8 @@ Análise de 51 modelos. Identificação de sobrefacturação sistemática superi
 | Curso | Instituição | Estado |
 |-------|-------------|--------|
 | Bacharelato em Ciências Contábeis | Anhanguera Educacional | Em curso (2025–2029) |
-| Pós-Graduação em Auditoria e Perícia Contábil | — | Em curso (2025–2026) |
-| Tecnólogo em Blockchain, Criptomoedas e Finanças Digitais | Anhanguera / Unopar | Concluído (Jan 2025) |
+| Pós-Graduação em Auditoria e Perícia Contábil | Anhanguera | Em curso (2025–2026) |
+| Tecnólogo em Blockchain, Criptomoedas e Finanças Digitais | Anhanguera / Unopar | ✅ Concluído (Jan 2025) |
 
 ---
 
